@@ -1,32 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Chromium in Docker</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif}
+        body{display:flex;height:100vh;background:#f5f7fa}
+        /* 左侧 banner */
+        .banner{
+            flex:0 0 260px;
+            background:url('https://static-us.blessume.store/blessume_us/chahua.jpg') center/cover no-repeat;
+            box-shadow:2px 0 8px rgba(0,0,0,.08);
+        }
+        /* 右侧控制区 */
+        .panel{
+            flex:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:40px;
+        }
+        .card{
+            background:#fff;
+            border-radius:12px;
+            box-shadow:0 8px 24px rgba(0,0,0,.1);
+            padding:40px 50px;
+            width:100%;
+            max-width: 520px;
+        }
+        h1{margin-bottom:30px;font-size:22px;color:#333;text-align:center}
+        .row{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+        label{cursor:pointer;font-size:14px;color:#555}
+        input[type=checkbox]{transform:scale(1.2)}
+        .radio-group{display:flex;gap:8px;flex-wrap:wrap}
+        .radio-group label{
+            display:flex;
+            align-items:center;
+            gap:4px;
+            padding:4px 8px;
+            border:1px solid #d0d7e5;
+            border-radius:3px;
+            transition:.2s;
+        }
+        .radio-group input[type=radio]{margin:0}
+        .radio-group label:has(input:checked){
+            background:#4096ff;
+            color:#fff;
+            border-color:#4096ff;
+        }
+        .combo{
+            margin: 20px 0;
+            flex:1;
+            min-width:180px;
+            position:relative;
+        }
+        select, input[type=text]{
+            width:100%;
+            padding:8px 10px;
+            border:1px solid #d0d7e5;
+            border-radius:6px;
+            font-size:14px;
+        }
+        button{
+            padding:8px 20px;
+            background:#4096ff;
+            color:#fff;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            transition:.2s;
+        }
+        button:hover{background:#1677ff}
+        @media(max-width:600px){
+            body{flex-direction:column}
+            .banner{display:none}
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧 banner -->
+    <div class="banner"></div>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
+    <!-- 右侧控制区 -->
+    <div class="panel">
+        <div class="card">
+            <h1>Chromium in Docker</h1>
+
+            <div class="row">
+                <!-- 复选框 -->
+                <label>
+                    <input type="checkbox" id="addPort">
+                    追加端口
+                </label>
+
+                <!-- 端口单选 -->
+                <div class="radio-group">
+                    <!-- 生成 9890-9099 -->
+                    <script>
+                        for(let p=9890;p<=9899;p++){
+                            document.write(`
+                                <label>
+                                    <input type="radio" name="port" value="${p}" ${p===9890?'checked':''}>
+                                    ${p}
+                                </label>
+                            `);
+                        }
+                    </script>
+                </div>
+
+                <!-- 下拉/输入框 -->
+                <div class="combo">
+                    <input type="text" id="urlInput" list="urlList" placeholder="请选择或输入网址">
+                    <datalist id="urlList">
+                        <option value="https://study.4link.fun">
+                        <option value="https://chrome.blessume.store">
+                        <option value="https://chrome.graceart.store"></option>    
+                    </datalist>
+                </div>
+
+                <!-- 转到按钮 -->
+                <button onclick="go()">转到</button>
             </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
-            </div>
-        </main>
-    </body>
+        </div>
+    </div>
+
+    <script>
+        function go(){
+            const base = document.getElementById('urlInput').value.trim();
+            if(!base){
+                alert('请输入或选择网址');return;
+            }
+            let target = base;
+            if(document.getElementById('addPort').checked){
+                const port = document.querySelector('input[name="port"]:checked').value;
+                // 简单处理：若已有端口则替换，否则追加
+                target = base.replace(/:\d+$/,'') + ':' + port;
+            }
+            window.open(target,'_self');
+        }
+    </script>
+</body>
 </html>
